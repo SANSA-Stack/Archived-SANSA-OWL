@@ -1,16 +1,26 @@
 package net.sansa_stack.owl.spark.rdd
 
 import com.holdenkarau.spark.testing.SharedSparkContext
+import org.apache.spark.sql.SparkSession
 import org.scalatest.FunSuite
+
+import net.sansa_stack.owl.spark.owl._
 
 
 class ManchesterSyntaxOWLExpressionsRDDBuilderTest extends FunSuite with SharedSparkContext {
-  var _rdd: OWLExpressionsRDD = null
+  lazy val spark = SparkSession.builder().appName(sc.appName).master(sc.master)
+    .config(
+      "spark.kryo.registrator",
+      "net.sansa_stack.owl.spark.dataset.UnmodifiableCollectionKryoRegistrator")
+    .getOrCreate()
 
-  def rdd = {
+  var _rdd: OWLExpressionsRDD = null
+  val syntax = Syntax.MANCHESTER
+
+  val filePath = this.getClass.getClassLoader.getResource("ont_manchester.owl").getPath
+  def rdd: OWLExpressionsRDD = {
     if (_rdd == null) {
-      _rdd = ManchesterSyntaxOWLExpressionsRDDBuilder.build(
-        sc, "src/test/resources/ont_manchester.owl")
+      _rdd = spark.owlExpressions(syntax)(filePath)
 //        sc, "hdfs://localhost:9000/ont_manchester.owl")
       _rdd.cache()
     }

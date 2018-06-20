@@ -1,11 +1,12 @@
 package net.sansa_stack.owl.common.parsing
 
+import scala.util.matching.Regex.Match
+
 import com.typesafe.scalalogging.Logger
 import org.semanticweb.owlapi.apibinding.OWLManager
 import org.semanticweb.owlapi.functional.parser.OWLFunctionalSyntaxOWLParserFactory
 import org.semanticweb.owlapi.io.{OWLParserException, StringDocumentSource}
 import org.semanticweb.owlapi.model.OWLAxiom
-
 
 /**
   * Object containing several constants used by the FunctionalSyntaxParsing
@@ -81,14 +82,13 @@ trait FunctionalSyntaxPrefixParsing {
     *                   Prefix(:=<http://purl.obolibrary.org/obo/pato.owl#>) or
     *                   Prefix(dc:=<http://purl.org/dc/elements/1.1/>)
     */
-  def parsePrefix(prefixLine: String) = {
+  def parsePrefix(prefixLine: String): (String, String) = {
     var prefix, uri: String = null
 
     prefixLine.trim match {
-      case FunctionalSyntaxParsing.prefixPattern(p, u) => {
+      case FunctionalSyntaxParsing.prefixPattern(p, u) =>
         prefix = p
         uri = u
-      }
     }
 
     if (prefix.isEmpty) prefix = FunctionalSyntaxParsing._empty
@@ -144,10 +144,10 @@ class FunctionalSyntaxExpressionBuilder(val prefixes: Map[String, String]) exten
       trimmedExpr.startsWith("Ontology(") ||  // 5)
       trimmedExpr.startsWith("<http") // 6
 
-    if (discardExpression)
+    if (discardExpression) {
       null
 
-    else {
+    } else {
       // Expand prefix abbreviations: foo:Bar --> http://foo.com/somePath#Bar
       for (prefix <- prefixes.keys) {
         val p = prefix + ":"
@@ -155,13 +155,11 @@ class FunctionalSyntaxExpressionBuilder(val prefixes: Map[String, String]) exten
         if (trimmedExpr.contains(p)) {
           val v: String = "<" + prefixes.get(prefix).get
           // TODO: refine regex
-          val pattern = (p + "([a-zA-Z][0-9a-zA-Z_-]*)").r
+          val pattern = (p + "([a-zA-Z][0-9a-zA-Z_-]*)\\b").r
 
-          pattern.findAllIn(trimmedExpr).foreach(hit => {
-            if (!trimmedExpr.contains(hit + ">")) {
-              trimmedExpr = trimmedExpr.replace(hit, hit + ">")
-            }
-          })
+          // Append ">" to all matched local parts: "foo:car" --> "foo:car>"
+          trimmedExpr = pattern.replaceAllIn(trimmedExpr, m => s"${m.matched}>")
+          // Expand prefix: "foo:car>" --> "http://foo.org/res#car>"
           trimmedExpr = trimmedExpr.replace(p.toCharArray, v.toCharArray)
         }
       }
@@ -182,4 +180,3 @@ class FunctionalSyntaxExpressionBuilder(val prefixes: Map[String, String]) exten
     }
   }
 }
-

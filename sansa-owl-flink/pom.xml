@@ -7,11 +7,11 @@
     <parent>
         <artifactId>sansa-owl-parent_2.11</artifactId>
         <groupId>net.sansa-stack</groupId>
-        <version>0.3.0</version>
+        <version>0.4.0</version>
     </parent>
 
     <artifactId>sansa-owl-flink_2.11</artifactId>
-    <version>0.3.0</version>
+    <version>0.4.0</version>
 
     <name>SANSA OWL layer - Flink</name>
     <description>A library to read OWL files into Flink.</description>
@@ -80,6 +80,11 @@
             <plugin>
                 <groupId>org.scalatest</groupId>
                 <artifactId>scalatest-maven-plugin</artifactId>
+            </plugin>
+
+            <plugin>
+                <groupId>org.scalastyle</groupId>
+                <artifactId>scalastyle-maven-plugin</artifactId>
             </plugin>
         </plugins>
     </build>

@@ -2,6 +2,8 @@ package net.sansa_stack.owl.spark.dataset
 
 import java.util.stream.Collectors
 
+import scala.collection.JavaConverters._
+
 import com.holdenkarau.spark.testing.SharedSparkContext
 import org.apache.spark.sql.{Dataset, Encoders, SparkSession}
 import org.scalatest.FunSuite
@@ -10,7 +12,6 @@ import org.semanticweb.owlapi.model._
 import org.semanticweb.owlapi.vocab.XSDVocabulary
 import uk.ac.manchester.cs.owl.owlapi.{OWLDatatypeImpl, OWLEquivalentClassesAxiomImpl}
 
-import scala.collection.JavaConverters._
 
 
 class ManchesterSyntaxOWLAxiomsDatasetBuilderTest extends FunSuite with SharedSparkContext {
@@ -21,11 +22,11 @@ class ManchesterSyntaxOWLAxiomsDatasetBuilderTest extends FunSuite with SharedSp
     .getOrCreate()
   val dataFactory = OWLManager.getOWLDataFactory
   var _dataset: OWLAxiomsDataset = null
-  def dataset = {
+  def dataset: OWLAxiomsDataset = {
     if (_dataset == null) {
       _dataset = ManchesterSyntaxOWLAxiomsDatasetBuilder.build(
-//        spark, "src/test/resources/ont_manchester.owl")
-        spark, "hdfs://localhost:54310/ont_manchester.owl")
+        spark, this.getClass.getClassLoader.getResource("ont_manchester.owl").getPath)
+//        spark, "hdfs://localhost:54310/ont_manchester.owl")
       _dataset.cache()
     }
     _dataset
@@ -72,36 +73,39 @@ class ManchesterSyntaxOWLAxiomsDatasetBuilderTest extends FunSuite with SharedSp
    * *|AnnotationProperty: foo:hasName
    * *->  10) Declaration(AnnotationProperty(<http://ex.com/foo#hasName>))
    *
+   * *|AnnotationProperty: comment
+   * *->  11) Declaration(AnnotationProperty(<http://ex.com/default#comment>))
+   *
    * *|Datatype: bar:dtype1
-   * *->  11) Declaration(Datatype(<http://ex.com/bar#dtype1>))
+   * *->  12) Declaration(Datatype(<http://ex.com/bar#dtype1>))
    *
    * *|Datatype: bar:dtype2
-   * *->  12) Declaration(Datatype(<http://ex.com/bar#dtype2>))
+   * *->  13) Declaration(Datatype(<http://ex.com/bar#dtype2>))
    *
    * *|Datatype: rdf:PlainLiteral
-   * *->  13) Declaration(Datatype(rdf:PlainLiteral))
+   * *->  14) Declaration(Datatype(rdf:PlainLiteral))
    *
    * *|Datatype: rdfs:Literal
-   * *->  14) Declaration(Datatype(rdfs:Literal))
+   * *->  15) Declaration(Datatype(rdfs:Literal))
    *
    * *|Datatype: xsd:int
-   * *->  15) Declaration(Datatype(xsd:int))
+   * *->  16) Declaration(Datatype(xsd:int))
    *
    * *|Datatype: xsd:integer
-   * *->  16) Declaration(Datatype(xsd:integer))
+   * *->  17) Declaration(Datatype(xsd:integer))
    *
    * *|Datatype: xsd:string
-   * *->  17) Declaration(Datatype(xsd:string))
+   * *->  18) Declaration(Datatype(xsd:string))
    *
    * *|ObjectProperty: bar:Prop2
-   * *->  18) Declaration(ObjectProperty(<http://ex.com/bar#Prop2>))
+   * *->  19) Declaration(ObjectProperty(<http://ex.com/bar#Prop2>))
    *
    * *|ObjectProperty: bar:asymmObjProp
    *  |
    *  |    Characteristics:
    *  |        Asymmetric
-   * *->  19) Declaration(ObjectProperty(<http://ex.com/bar#asymmObjProp>))
-   * *->  20) AsymmetricObjectProperty(<http://ex.com/bar#asymmObjProp>)
+   * *->  20) Declaration(ObjectProperty(<http://ex.com/bar#asymmObjProp>))
+   * *->  21) AsymmetricObjectProperty(<http://ex.com/bar#asymmObjProp>)
    *
    * *|ObjectProperty: bar:invObjProp1
    *  |
@@ -113,10 +117,10 @@ class ManchesterSyntaxOWLAxiomsDatasetBuilderTest extends FunSuite with SharedSp
    *  |
    *  |    InverseOf:
    *  |        bar:objProp1
-   * *->  21) Declaration(ObjectProperty(<http://ex.com/bar#invObjProp1>))
-   * *->  22) EquivalentObjectProperties(<http://ex.com/bar#invObjProp1> ObjectInverseOf(<http://ex.com/bar#objProp1>) )
-   * *->  23) InverseFunctionalObjectProperty(<http://ex.com/bar#invObjProp1>)
-   * *->  24) InverseObjectProperties(<http://ex.com/bar#invObjProp1> <http://ex.com/bar#objProp1>)
+   * *->  22) Declaration(ObjectProperty(<http://ex.com/bar#invObjProp1>))
+   * *->  23) EquivalentObjectProperties(<http://ex.com/bar#invObjProp1> ObjectInverseOf(<http://ex.com/bar#objProp1>) )
+   * *->  24) InverseFunctionalObjectProperty(<http://ex.com/bar#invObjProp1>)
+   * *->  25) InverseObjectProperties(<http://ex.com/bar#invObjProp1> <http://ex.com/bar#objProp1>)
    *
    * *|ObjectProperty: bar:objProp1
    *  |
@@ -138,14 +142,14 @@ class ManchesterSyntaxOWLAxiomsDatasetBuilderTest extends FunSuite with SharedSp
    *  |
    *  |    InverseOf:
    *  |        bar:invObjProp1
-   * *->  25) Declaration(ObjectProperty(<http://ex.com/bar#objProp1>))
-   * *->  26) EquivalentObjectProperties(<http://ex.com/bar#objProp1> <http://ex.com/bar#sameAsObjProp1> )
-   * *->  27) DisjointObjectProperties(<http://ex.com/bar#objProp1> <http://ex.com/bar#objProp2> )
-   * *->  28) TransitiveObjectProperty(<http://ex.com/bar#objProp1>)
-   * *->  29) ReflexiveObjectProperty(<http://ex.com/bar#objProp1>)
-   * *->  30) ObjectPropertyDomain(<http://ex.com/bar#objProp1> <http://ex.com/bar#Cls1>)
-   * *->  31) ObjectPropertyRange(<http://ex.com/bar#objProp1> <http://ex.com/bar#AllIndividualsCls>)
-   * *->  32) InverseObjectProperties(<http://ex.com/bar#objProp1> <http://ex.com/bar#invObjProp1>)
+   * *->  26) Declaration(ObjectProperty(<http://ex.com/bar#objProp1>))
+   * *->  27) EquivalentObjectProperties(<http://ex.com/bar#objProp1> <http://ex.com/bar#sameAsObjProp1> )
+   * *->  28) DisjointObjectProperties(<http://ex.com/bar#objProp1> <http://ex.com/bar#objProp2> )
+   * *->  29) TransitiveObjectProperty(<http://ex.com/bar#objProp1>)
+   * *->  30) ReflexiveObjectProperty(<http://ex.com/bar#objProp1>)
+   * *->  31) ObjectPropertyDomain(<http://ex.com/bar#objProp1> <http://ex.com/bar#Cls1>)
+   * *->  32) ObjectPropertyRange(<http://ex.com/bar#objProp1> <http://ex.com/bar#AllIndividualsCls>)
+   * *->  33) InverseObjectProperties(<http://ex.com/bar#objProp1> <http://ex.com/bar#invObjProp1>)
    *
    * *|ObjectProperty: bar:objProp2
    *  |
@@ -156,25 +160,25 @@ class ManchesterSyntaxOWLAxiomsDatasetBuilderTest extends FunSuite with SharedSp
    *  |        Functional,
    *  |        Symmetric,
    *  |        Irreflexive
-   * *->  33) Declaration(ObjectProperty(<http://ex.com/bar#objProp2>))
-   * *->  34) DisjointObjectProperties(<http://ex.com/bar#objProp1> <http://ex.com/bar#objProp2> )
-   * *->  35) FunctionalObjectProperty(<http://ex.com/bar#objProp2>)
-   * *->  36) SymmetricObjectProperty(<http://ex.com/bar#objProp2>)
-   * *->  37) IrreflexiveObjectProperty(<http://ex.com/bar#objProp2>)
+   * *->  34) Declaration(ObjectProperty(<http://ex.com/bar#objProp2>))
+   * *->  35) DisjointObjectProperties(<http://ex.com/bar#objProp1> <http://ex.com/bar#objProp2> )
+   * *->  36) FunctionalObjectProperty(<http://ex.com/bar#objProp2>)
+   * *->  37) SymmetricObjectProperty(<http://ex.com/bar#objProp2>)
+   * *->  38) IrreflexiveObjectProperty(<http://ex.com/bar#objProp2>)
    *
    * *|ObjectProperty: bar:sameAsObjProp1
    *  |
    *  |    EquivalentTo:
    *  |        bar:objProp1
-   * *->  38) Declaration(ObjectProperty(<http://ex.com/bar#sameAsObjProp1>))
-   * *->  39) EquivalentObjectProperties(<http://ex.com/bar#objProp1> <http://ex.com/bar#sameAsObjProp1> )
+   * *->  39) Declaration(ObjectProperty(<http://ex.com/bar#sameAsObjProp1>))
+   * *->  40) EquivalentObjectProperties(<http://ex.com/bar#objProp1> <http://ex.com/bar#sameAsObjProp1> )
    *
    * *|ObjectProperty: bar:subObjProp1
    *  |
    *  |    SubPropertyOf:
    *  |        bar:objProp1
-   * *->  40) Declaration(ObjectProperty(<http://ex.com/bar#subObjProp1>))
-   * *->  41) SubObjectPropertyOf(<http://ex.com/bar#subObjProp1> <http://ex.com/bar#objProp1>)
+   * *->  41) Declaration(ObjectProperty(<http://ex.com/bar#subObjProp1>))
+   * *->  42) SubObjectPropertyOf(<http://ex.com/bar#subObjProp1> <http://ex.com/bar#objProp1>)
    *
    * *|DataProperty: bar:dataProp1
    *  |
@@ -194,12 +198,12 @@ class ManchesterSyntaxOWLAxiomsDatasetBuilderTest extends FunSuite with SharedSp
    *  |
    *  |    DisjointWith:
    *  |        bar:dataProp2
-   * *->  42) Declaration(DataProperty(<http://ex.com/bar#dataProp1>))
-   * *->  43) FunctionalDataProperty(Annotation(<http://ex.com/default#comment> "This annotation is required"^^xsd:string) <http://ex.com/bar#dataProp1>)
-   * *->  44) DataPropertyDomain(<http://ex.com/bar#dataProp1> <http://ex.com/bar#Cls1>)
-   * *->  45) DataPropertyRange(<http://ex.com/bar#dataProp1> xsd:string)
-   * *->  46) EquivalentDataProperties(<http://ex.com/bar#dataProp1> <http://ex.com/bar#sameAsDataProp1> )
-   * *->  47) DisjointDataProperties(<http://ex.com/bar#dataProp1> <http://ex.com/bar#dataProp2> )
+   * *->  43) Declaration(DataProperty(<http://ex.com/bar#dataProp1>))
+   * *->  44) FunctionalDataProperty(Annotation(<http://ex.com/default#comment> "This annotation is required"^^xsd:string) <http://ex.com/bar#dataProp1>)
+   * *->  45) DataPropertyDomain(<http://ex.com/bar#dataProp1> <http://ex.com/bar#Cls1>)
+   * *->  46) DataPropertyRange(<http://ex.com/bar#dataProp1> xsd:string)
+   * *->  47) EquivalentDataProperties(<http://ex.com/bar#dataProp1> <http://ex.com/bar#sameAsDataProp1> )
+   * *->  48) DisjointDataProperties(<http://ex.com/bar#dataProp1> <http://ex.com/bar#dataProp2> )
    *
    * *|DataProperty: bar:dataProp2
    *  |
@@ -211,38 +215,38 @@ class ManchesterSyntaxOWLAxiomsDatasetBuilderTest extends FunSuite with SharedSp
    *  |
    *  |    DisjointWith:
    *  |        bar:dataProp1
-   * *->  48) Declaration(DataProperty(<http://ex.com/bar#dataProp2>))
-   * *->  49) DataPropertyDomain(<http://ex.com/bar#dataProp2> <http://ex.com/bar#Cls1>)
-   * *->  50) DataPropertyRange(<http://ex.com/bar#dataProp2> xsd:int)
-   * *->  51) DisjointDataProperties(<http://ex.com/bar#dataProp1> <http://ex.com/bar#dataProp2> )
+   * *->  49) Declaration(DataProperty(<http://ex.com/bar#dataProp2>))
+   * *->  50) DataPropertyDomain(<http://ex.com/bar#dataProp2> <http://ex.com/bar#Cls1>)
+   * *->  51) DataPropertyRange(<http://ex.com/bar#dataProp2> xsd:int)
+   * *->  52) DisjointDataProperties(<http://ex.com/bar#dataProp1> <http://ex.com/bar#dataProp2> )
    *
    * *|DataProperty: bar:sameAsDataProp1
    *  |
    *  |    EquivalentTo:
    *  |        bar:dataProp1
-   * *->  52) Declaration(DataProperty(<http://ex.com/bar#sameAsDataProp1>))
-   * *->  53) EquivalentDataProperties(<http://ex.com/bar#dataProp1> <http://ex.com/bar#sameAsDataProp1> )
+   * *->  53) Declaration(DataProperty(<http://ex.com/bar#sameAsDataProp1>))
+   * *->  54) EquivalentDataProperties(<http://ex.com/bar#dataProp1> <http://ex.com/bar#sameAsDataProp1> )
    *
    * *|DataProperty: bar:subDataProp1
    *  |
    *  |    SubPropertyOf:
    *  |        bar:dataProp1
-   * *->  54) Declaration(DataProperty(<http://ex.com/bar#subDataProp1>))
-   * *->  55) SubDataPropertyOf(<http://ex.com/bar#subDataProp1> <http://ex.com/bar#dataProp1>)
+   * *->  55) Declaration(DataProperty(<http://ex.com/bar#subDataProp1>))
+   * *->  56) SubDataPropertyOf(<http://ex.com/bar#subDataProp1> <http://ex.com/bar#dataProp1>)
    *
    * *|Class: bar:AllIndividualsCls
    *  |
    *  |    EquivalentTo:
    *  |        {foo:indivA , foo:indivB}
-   * *->  56) Declaration(Class(<http://ex.com/bar#AllIndividualsCls>))
-   * *->  57) EquivalentClasses(<http://ex.com/bar#AllIndividualsCls> ObjectOneOf(<http://ex.com/foo#indivA> <http://ex.com/foo#indivB>))
+   * *->  57) Declaration(Class(<http://ex.com/bar#AllIndividualsCls>))
+   * *->  58) EquivalentClasses(<http://ex.com/bar#AllIndividualsCls> ObjectOneOf(<http://ex.com/foo#indivA> <http://ex.com/foo#indivB>))
    *
    * *|Class: bar:AllProp1Cls1
    *  |
    *  |    EquivalentTo:
    *  |        bar:objProp1 only bar:Cls1
-   * *->  58) Declaration(Class(<http://ex.com/bar#AllProp1Cls1>))
-   * *->  59) EquivalentClasses(<http://ex.com/bar#AllProp1Cls1> ObjectAllValuesFrom(<http://ex.com/bar#objProp1> <http://ex.com/bar#Cls1>))
+   * *->  59) Declaration(Class(<http://ex.com/bar#AllProp1Cls1>))
+   * *->  60) EquivalentClasses(<http://ex.com/bar#AllProp1Cls1> ObjectAllValuesFrom(<http://ex.com/bar#objProp1> <http://ex.com/bar#Cls1>))
    *
    * *|Class: bar:Cl1OrNegate
    *  |
@@ -250,8 +254,8 @@ class ManchesterSyntaxOWLAxiomsDatasetBuilderTest extends FunSuite with SharedSp
    *  |        Annotations:
    *  |            comment "This annotation is required"
    *  |        bar:Cls1, bar:ComplementCls1
-   * *->  60) Declaration(Class(<http://ex.com/bar#Cl1OrNegate>))
-   * *->  61) DisjointUnion(Annotation(<http://ex.com/default#comment> "This annotation is required"^^xsd:string) <http://ex.com/bar#Cl1OrNegate> <http://ex.com/bar#Cls1> <http://ex.com/bar#ComplementCls1>)
+   * *->  61) Declaration(Class(<http://ex.com/bar#Cl1OrNegate>))
+   * *->  62) DisjointUnion(Annotation(<http://ex.com/default#comment> "This annotation is required"^^xsd:string) <http://ex.com/bar#Cl1OrNegate> <http://ex.com/bar#Cls1> <http://ex.com/bar#ComplementCls1>)
    *
    * *|Class: bar:Cls1
    *  |
@@ -259,36 +263,36 @@ class ManchesterSyntaxOWLAxiomsDatasetBuilderTest extends FunSuite with SharedSp
    *  |        Annotations:
    *  |            comment "This annotation is required"
    *  |        bar:dataProp1
-   * *->  62) Declaration(Class(<http://ex.com/bar#Cls1>))
-   * *->  63) FIXME: HasKey(Annotation(<http://ex.com/default#comment> "This annotation is required"^^xsd:string) <http://ex.com/bar#Cls1> (<http://ex.com/bar#dataProp1> ) ())
+   * *->  63) Declaration(Class(<http://ex.com/bar#Cls1>))
+   * *->  64) FIXME: HasKey(Annotation(<http://ex.com/default#comment> "This annotation is required"^^xsd:string) <http://ex.com/bar#Cls1> (<http://ex.com/bar#dataProp1> ) ())
    *          <http://ex.com/bar#dataProp1> is probably parsed as object property
    *
    * *|Class: bar:Cls2
-   * *->  64) Declaration(Class(<http://ex.com/bar#Cls2>))
+   * *->  65) Declaration(Class(<http://ex.com/bar#Cls2>))
    *
    * *|Class: bar:ComplementCls
    *  |
    *  |    EquivalentTo:
    *  |        not (bar:Cls1)
-   * *->  65) Declaration(Class(<http://ex.com/bar#ComplementCls>))
-   * *->  66) EquivalentClasses(<http://ex.com/bar#ComplementCls> ObjectComplementOf(<http://ex.com/bar#Cls1>) )
+   * *->  66) Declaration(Class(<http://ex.com/bar#ComplementCls>))
+   * *->  67) EquivalentClasses(<http://ex.com/bar#ComplementCls> ObjectComplementOf(<http://ex.com/bar#Cls1>) )
    *
    * *|Class: bar:ComplementCls1
-   * *->  67) Declaration(Class(<http://ex.com/bar#ComplementCls1>))
+   * *->  68) Declaration(Class(<http://ex.com/bar#ComplementCls1>))
    *
    * *|Class: bar:DataAllIntGT10
    *  |
    *  |    EquivalentTo:
    *  |        bar:dataProp2 only xsd:integer [>= 10]
-   * *->  68) Declaration(Class(<http://ex.com/bar#DataAllIntGT10>))
-   * *->  69) EquivalentClasses(<http://ex.com/bar#DataAllIntGT10> DataAllValuesFrom(<http://ex.com/bar#dataProp2> DataRangeRestriction(xsd:integer facetRestriction(minInclusive "10"^^xsd:integer))))
+   * *->  69) Declaration(Class(<http://ex.com/bar#DataAllIntGT10>))
+   * *->  70) EquivalentClasses(<http://ex.com/bar#DataAllIntGT10> DataAllValuesFrom(<http://ex.com/bar#dataProp2> DataRangeRestriction(xsd:integer facetRestriction(minInclusive "10"^^xsd:integer))))
    *
    * *|Class: bar:DataExact5Prop1
    *  |
    *  |    EquivalentTo:
    *  |        bar:dataProp1 exactly 5 rdfs:Literal
-   * *->  70) Declaration(Class(<http://ex.com/bar#DataExact5Prop1>))
-   * *->  71) FIXME: EquivalentClasses(<http://ex.com/bar#DataExact5Prop1> ObjectExactCardinality(5 <http://ex.com/bar#dataProp1> rdfs:Literal) )
+   * *->  71) Declaration(Class(<http://ex.com/bar#DataExact5Prop1>))
+   * *->  72) FIXME: EquivalentClasses(<http://ex.com/bar#DataExact5Prop1> ObjectExactCardinality(5 <http://ex.com/bar#dataProp1> rdfs:Literal) )
    *          should be EquivalentClasses(<http://ex.com/bar#DataExact5Prop1> DataExactCardinality(5 <http://ex.com/bar#dataProp1> rdfs:Literal) )
    *
    *
@@ -296,8 +300,8 @@ class ManchesterSyntaxOWLAxiomsDatasetBuilderTest extends FunSuite with SharedSp
    *  |
    *  |    EquivalentTo:
    *  |        bar:dataProp2 value 5
-   * *->  72) Declaration(Class(<http://ex.com/bar#DataHasVal5>))
-   * *->  73) EquivalentClasses(<http://ex.com/bar#DataHasVal5> DataHasValue(<http://ex.com/bar#dataProp2> "5"^^xsd:integer))
+   * *->  73) Declaration(Class(<http://ex.com/bar#DataHasVal5>))
+   * *->  74) EquivalentClasses(<http://ex.com/bar#DataHasVal5> DataHasValue(<http://ex.com/bar#dataProp2> "5"^^xsd:integer))
    *
    * *|Class: bar:DataMax2Prop1
    *  |
@@ -306,10 +310,10 @@ class ManchesterSyntaxOWLAxiomsDatasetBuilderTest extends FunSuite with SharedSp
    *  |
    *  |    DisjointWith:
    *  |        bar:DataMin3Prop1
-   * *->  74) Declaration(Class(<http://ex.com/bar#DataMax2Prop1>))
-   * *->  75) FIXME: EquivalentClasses(<http://ex.com/bar#DataMax2Prop1> ObjectMaxCardinality(2 <http://ex.com/bar#dataProp1> rdfs:Literal))
+   * *->  75) Declaration(Class(<http://ex.com/bar#DataMax2Prop1>))
+   * *->  76) FIXME: EquivalentClasses(<http://ex.com/bar#DataMax2Prop1> ObjectMaxCardinality(2 <http://ex.com/bar#dataProp1> rdfs:Literal))
    *          should be EquivalentClasses(<http://ex.com/bar#DataMax2Prop1> DataMaxCardinality(2 <http://ex.com/bar#dataProp1> rdfs:Literal))
-   * *->  76) DisjointClasses(<http://ex.com/bar#DataMax2Prop1> <http://ex.com/bar#DataMin3Prop1>))
+   * *->  77) DisjointClasses(<http://ex.com/bar#DataMax2Prop1> <http://ex.com/bar#DataMin3Prop1>))
    *
    * *|Class: bar:DataMin3Prop1
    *  |
@@ -318,74 +322,74 @@ class ManchesterSyntaxOWLAxiomsDatasetBuilderTest extends FunSuite with SharedSp
    *  |
    *  |    DisjointWith:
    *  |        bar:DataMax2Prop1
-   * *->  77) Declaration(Class(<http://ex.com/bar#DataMin3Prop1>))
-   * *->  78) FIXME: EquivalentClasses(<http://ex.com/bar#DataMin3Prop1> ObjectMinCardinality(3 <http://ex.com/bar#dataProp1> rdfs:Literal) )
+   * *->  78) Declaration(Class(<http://ex.com/bar#DataMin3Prop1>))
+   * *->  79) FIXME: EquivalentClasses(<http://ex.com/bar#DataMin3Prop1> ObjectMinCardinality(3 <http://ex.com/bar#dataProp1> rdfs:Literal) )
    *          should be EquivalentClasses(<http://ex.com/bar#DataMin3Prop1> DataMinCardinality(3 <http://ex.com/bar#dataProp1> rdfs:Literal) )
-   * *->  79) DisjointClasses(<http://ex.com/bar#DataMax2Prop1> <http://ex.com/bar#DataMin3Prop1>))
+   * *->  80) DisjointClasses(<http://ex.com/bar#DataMax2Prop1> <http://ex.com/bar#DataMin3Prop1>))
    *
    * *|Class: bar:DataSomeIntLT20
    *  |
    *  |    EquivalentTo:
    *  |        bar:dataProp2 some xsd:integer[< 20]
-   * *->  80) Declaration(Class(<http://ex.com/bar#DataSomeIntLT20>))
-   * *->  81) EquivalentClasses(<http://ex.com/bar#DataSomeIntLT20> DataSomeValuesFrom(<http://ex.com/bar#dataProp2> DataRangeRestriction(xsd:integer facetRestriction(maxExclusive "20"^^xsd:integer))))
+   * *->  81) Declaration(Class(<http://ex.com/bar#DataSomeIntLT20>))
+   * *->  82) EquivalentClasses(<http://ex.com/bar#DataSomeIntLT20> DataSomeValuesFrom(<http://ex.com/bar#dataProp2> DataRangeRestriction(xsd:integer facetRestriction(maxExclusive "20"^^xsd:integer))))
    *
    * *|Class: bar:Exact5Prop1Cls1
    *  |
    *  |    EquivalentTo:
    *  |        bar:objProp1 exactly 5 bar:Cls1
-   * *->  82) Declaration(Class(<http://ex.com/bar#Exact5Prop1Cls1>))
-   * *->  83) EquivalentClasses(<http://ex.com/bar#Exact5Prop1Cls1> ObjectExactCardinality(5 <http://ex.com/bar#objProp1> <http://ex.com/bar#Cls1>))
+   * *->  83) Declaration(Class(<http://ex.com/bar#Exact5Prop1Cls1>))
+   * *->  84) EquivalentClasses(<http://ex.com/bar#Exact5Prop1Cls1> ObjectExactCardinality(5 <http://ex.com/bar#objProp1> <http://ex.com/bar#Cls1>))
    *
    * *|Class: bar:HasSelfProp1
    *  |
    *  |    EquivalentTo:
    *  |        bar:objProp1 Self
-   * *->  84) Declaration(Class(<http://ex.com/bar#HasSelfProp1>))
-   * *->  85) EquivalentClasses(<http://ex.com/bar#HasSelfProp1> ObjectHasSelf(<http://ex.com/bar#objProp1>) )
+   * *->  85) Declaration(Class(<http://ex.com/bar#HasSelfProp1>))
+   * *->  86) EquivalentClasses(<http://ex.com/bar#HasSelfProp1> ObjectHasSelf(<http://ex.com/bar#objProp1>) )
    *
    * *|Class: bar:HasValProp1IndivB
    *  |
    *  |    EquivalentTo:
    *  |        bar:objProp1 value foo:indivB
-   * *->  86) Declaration(Class(<http://ex.com/bar#HasValProp1IndivB>))
-   * *->  87) EquivalentClasses(<http://ex.com/bar#HasValProp1IndivB> ObjectHasValue(<http://ex.com/bar#objProp1> <http://ex.com/foo#indivB>))
+   * *->  87) Declaration(Class(<http://ex.com/bar#HasValProp1IndivB>))
+   * *->  88) EquivalentClasses(<http://ex.com/bar#HasValProp1IndivB> ObjectHasValue(<http://ex.com/bar#objProp1> <http://ex.com/foo#indivB>))
    *
    * *|ClassA: bar:IntersectionCls
    *  |
    *  |    EquivalentTo:
    *  |        bar:Cls1
    *  |         and bar:Cls2
-   * *->  88) Declaration(Class(<http://ex.com/bar#IntersectionCls>))
-   * *->  89) EquivalentClasses(<http://ex.com/bar#IntersectionCls> ObjectIntersectionOf(<http://ex.com/bar#Cls1> <http://ex.com/bar#Cls2>) )
+   * *->  89) Declaration(Class(<http://ex.com/bar#IntersectionCls>))
+   * *->  90) EquivalentClasses(<http://ex.com/bar#IntersectionCls> ObjectIntersectionOf(<http://ex.com/bar#Cls1> <http://ex.com/bar#Cls2>) )
    *
    * *|Class: bar:Max3Prop1Cls1
    *  |
    *  |    EquivalentTo:
    *  |        bar:objProp1 max 3 bar:Cls1
-   * *->  90) Declaration(Class(<http://ex.com/bar#Max3Prop1Cls1>))
-   * *->  91) EquivalentClasses(<http://ex.com/bar#Max3Prop1Cls1> ObjectMaxCardinality(3 <http://ex.com/bar#objProp1> <http://ex.com/bar#Cls1>))
+   * *->  91) Declaration(Class(<http://ex.com/bar#Max3Prop1Cls1>))
+   * *->  92) EquivalentClasses(<http://ex.com/bar#Max3Prop1Cls1> ObjectMaxCardinality(3 <http://ex.com/bar#objProp1> <http://ex.com/bar#Cls1>))
    *
    * *|Class: bar:Min2Prop1Cls1
    *  |
    *  |    EquivalentTo:
    *  |        bar:objProp1 min 2 bar:Cls1
-   * *->  92) Declaration(Class(<http://ex.com/bar#Min2Prop1Cls1>))
-   * *->  93) EquivalentClasses(<http://ex.com/bar#Min2Prop1Cls1> ObjectMinCardinality(2 <http://ex.com/bar#objProp1> <http://ex.com/bar#Cls1>))
+   * *->  93) Declaration(Class(<http://ex.com/bar#Min2Prop1Cls1>))
+   * *->  94) EquivalentClasses(<http://ex.com/bar#Min2Prop1Cls1> ObjectMinCardinality(2 <http://ex.com/bar#objProp1> <http://ex.com/bar#Cls1>))
    *
    * *|Class: bar:SomeProp1Cls1
    *  |
    *  |    EquivalentTo:
    *  |        bar:objProp1 some bar:Cls1
-   * *->  94) Declaration(Class(<http://ex.com/bar#SomeProp1Cls1>))
-   * *->  95) EquivalentClasses(<http://ex.com/bar#SomeProp1Cls1> ObjectSomeValuesFrom(<http://ex.com/bar#objProp1> <http://ex.com/bar#Cls1>))
+   * *->  95) Declaration(Class(<http://ex.com/bar#SomeProp1Cls1>))
+   * *->  96) EquivalentClasses(<http://ex.com/bar#SomeProp1Cls1> ObjectSomeValuesFrom(<http://ex.com/bar#objProp1> <http://ex.com/bar#Cls1>))
    *
    * *|Class: bar:UnionCls
    *  |
    *  |    EquivalentTo:
    *  |        bar:Cls1 or bar:Cls2
-   * *->  96) Declaration(Class(<http://ex.com/bar#UnionCls>))
-   * *->  97) EquivalentClasses(<http://ex.com/bar#UnionCls> ObjectUnionOf(<http://ex.com/bar#Cls1> <http://ex.com/bar#Cls2>) )
+   * *->  97) Declaration(Class(<http://ex.com/bar#UnionCls>))
+   * *->  98) EquivalentClasses(<http://ex.com/bar#UnionCls> ObjectUnionOf(<http://ex.com/bar#Cls1> <http://ex.com/bar#Cls2>) )
    *
    * *|Individual: foo:indivA
    *  |
@@ -402,13 +406,13 @@ class ManchesterSyntaxOWLAxiomsDatasetBuilderTest extends FunSuite with SharedSp
    *  |
    *  |    DifferentFrom:
    *  |        foo:indivB
-   * *->  98) Declaration(NamedIndividual(<http://ex.com/foo#indivA>))
-   * *->  99) ClassAssertion(<http://ex.com/bar#Cls1> <http://ex.com/foo#indivA>)
-   * *-> 100) ObjectPropertyAssertion(<http://ex.com/bar#objProp1> <http://ex.com/foo#indivA> <http://ex.com/foo#indivB>)
-   * *-> 101) DataPropertyAssertion(<http://ex.com/bar#dataProp1> <http://ex.com/foo#indivA> "ABCD"^^xsd:string)
-   * *-> 102) NegativeDataPropertyAssertion(<http://ex.com/bar#dataProp2> <http://ex.com/foo#indivA> "23"^^xsd:integer)
-   * *-> 103) SameIndividual(<http://ex.com/foo#indivA> <http://ex.com/foo#sameAsIndivA> )
-   * *-> 104) DifferentIndividuals(<http://ex.com/foo#indivA> <http://ex.com/foo#indivB>)
+   * *->  99) Declaration(NamedIndividual(<http://ex.com/foo#indivA>))
+   * *-> 100) ClassAssertion(<http://ex.com/bar#Cls1> <http://ex.com/foo#indivA>)
+   * *-> 101) ObjectPropertyAssertion(<http://ex.com/bar#objProp1> <http://ex.com/foo#indivA> <http://ex.com/foo#indivB>)
+   * *-> 102) DataPropertyAssertion(<http://ex.com/bar#dataProp1> <http://ex.com/foo#indivA> "ABCD"^^xsd:string)
+   * *-> 103) NegativeDataPropertyAssertion(<http://ex.com/bar#dataProp2> <http://ex.com/foo#indivA> "23"^^xsd:integer)
+   * *-> 104) SameIndividual(<http://ex.com/foo#indivA> <http://ex.com/foo#sameAsIndivA> )
+   * *-> 105) DifferentIndividuals(<http://ex.com/foo#indivA> <http://ex.com/foo#indivB>)
    *
    * *|Individual: foo:indivB
    *  |
@@ -418,21 +422,21 @@ class ManchesterSyntaxOWLAxiomsDatasetBuilderTest extends FunSuite with SharedSp
    *  |
    *  |    DifferentFrom:
    *  |        foo:indivA
-   * *-> 105) Declaration(NamedIndividual(<http://ex.com/foo#indivB>))
-   * *-> 106) NegativeObjectPropertyAssertion(<http://ex.com/bar#Prop2> <http://ex.com/foo#indivB> <http://ex.com/foo#indivA>)
-   * *-> 107) DataPropertyAssertion(<http://ex.com/bar#dataProp1> <http://ex.com/foo#indivB> "BCDE"^^xsd:string
-   * *-> 108) DifferentIndividuals(<http://ex.com/foo#indivA> <http://ex.com/foo#indivB>)
+   * *-> 106) Declaration(NamedIndividual(<http://ex.com/foo#indivB>))
+   * *-> 107) NegativeObjectPropertyAssertion(<http://ex.com/bar#Prop2> <http://ex.com/foo#indivB> <http://ex.com/foo#indivA>)
+   * *-> 108) DataPropertyAssertion(<http://ex.com/bar#dataProp1> <http://ex.com/foo#indivB> "BCDE"^^xsd:string
+   * *-> 109) DifferentIndividuals(<http://ex.com/foo#indivA> <http://ex.com/foo#indivB>)
    *
    * *|Individual: foo:sameAsIndivA
    *  |
    *  |    SameAs:
    *  |        foo:indivA
-   * *-> 109) Declaration(NamedIndividual(<http://ex.com/foo#sameAsIndivA>))
-   * *-> 110) SameIndividual(<http://ex.com/foo#indivA> <http://ex.com/foo#sameAsIndivA> )
+   * *-> 110) Declaration(NamedIndividual(<http://ex.com/foo#sameAsIndivA>))
+   * *-> 111) SameIndividual(<http://ex.com/foo#indivA> <http://ex.com/foo#sameAsIndivA> )
    *
    */
   test("The number of axioms should match") {
-    val expectedNumberOfAxioms = 110
+    val expectedNumberOfAxioms = 111
     assert(dataset.count() == expectedNumberOfAxioms)
   }
 
@@ -491,56 +495,57 @@ class ManchesterSyntaxOWLAxiomsDatasetBuilderTest extends FunSuite with SharedSp
   }
 
   test("Declaration axioms should be created correctly") {
-    // Declaration(AnnotationProperty(<http://ex.com/bar#annProp1>))
-    // Declaration(AnnotationProperty(<http://ex.com/bar#annProp2>))
-    // Declaration(AnnotationProperty(<http://ex.com/bar#hasTitle>))
-    // Declaration(AnnotationProperty(<http://ex.com/bar#label>))
-    // Declaration(AnnotationProperty(<http://ex.com/default#description>))
-    // Declaration(AnnotationProperty(<http://ex.com/foo#ann>))
-    // Declaration(AnnotationProperty(<http://ex.com/foo#hasName>))
-    // Declaration(Datatype(<http://ex.com/bar#dtype1>))
-    // Declaration(Datatype(<http://ex.com/bar#dtype2>))
-    // Declaration(Datatype(rdf:PlainLiteral))
-    // Declaration(Datatype(rdfs:Literal))
-    // Declaration(Datatype(xsd:int))
-    // Declaration(Datatype(xsd:integer))
-    // Declaration(Datatype(xsd:string))
-    // Declaration(ObjectProperty(<http://ex.com/bar#Prop2>))
-    // Declaration(ObjectProperty(<http://ex.com/bar#asymmObjProp>))
-    // Declaration(ObjectProperty(<http://ex.com/bar#invObjProp1>))
-    // Declaration(ObjectProperty(<http://ex.com/bar#objProp1>))
-    // Declaration(ObjectProperty(<http://ex.com/bar#objProp2>))
-    // Declaration(ObjectProperty(<http://ex.com/bar#sameAsObjProp1>))
-    // Declaration(ObjectProperty(<http://ex.com/bar#subObjProp1>))
-    // Declaration(DataProperty(<http://ex.com/bar#dataProp1>))
-    // Declaration(DataProperty(<http://ex.com/bar#dataProp2>))
-    // Declaration(DataProperty(<http://ex.com/bar#sameAsDataProp1>))
-    // Declaration(DataProperty(<http://ex.com/bar#subDataProp1>))
-    // Declaration(Class(<http://ex.com/bar#AllIndividualsCls>))
-    // Declaration(Class(<http://ex.com/bar#AllProp1Cls1>))
-    // Declaration(Class(<http://ex.com/bar#Cl1OrNegate>))
-    // Declaration(Class(<http://ex.com/bar#Cls1>))
-    // Declaration(Class(<http://ex.com/bar#Cls2>))
-    // Declaration(Class(<http://ex.com/bar#ComplementCls>))
-    // Declaration(Class(<http://ex.com/bar#ComplementCls1>))
-    // Declaration(Class(<http://ex.com/bar#DataAllIntGT10>))
-    // Declaration(Class(<http://ex.com/bar#DataExact5Prop1>))
-    // Declaration(Class(<http://ex.com/bar#DataHasVal5>))
-    // Declaration(Class(<http://ex.com/bar#DataMax2Prop1>))
-    // Declaration(Class(<http://ex.com/bar#DataMin3Prop1>))
-    // Declaration(Class(<http://ex.com/bar#DataSomeIntLT20>))
-    // Declaration(Class(<http://ex.com/bar#Exact5Prop1Cls1>))
-    // Declaration(Class(<http://ex.com/bar#HasSelfProp1>))
-    // Declaration(Class(<http://ex.com/bar#HasValProp1IndivB>))
-    // Declaration(Class(<http://ex.com/bar#IntersectionCls>))
-    // Declaration(Class(<http://ex.com/bar#Max3Prop1Cls1>))
-    // Declaration(Class(<http://ex.com/bar#Min2Prop1Cls1>))
-    // Declaration(Class(<http://ex.com/bar#SomeProp1Cls1>))
-    // Declaration(Class(<http://ex.com/bar#UnionCls>))
-    // Declaration(NamedIndividual(<http://ex.com/foo#indivA>))
-    // Declaration(NamedIndividual(<http://ex.com/foo#indivB>))
-    // Declaration(NamedIndividual(<http://ex.com/foo#sameAsIndivA>))
-    val expectedNumberOfAxioms = 49
+    //  1) Declaration(AnnotationProperty(<http://ex.com/bar#annProp1>))
+    //  2) Declaration(AnnotationProperty(<http://ex.com/bar#annProp2>))
+    //  3) Declaration(AnnotationProperty(<http://ex.com/bar#hasTitle>))
+    //  4) Declaration(AnnotationProperty(<http://ex.com/bar#label>))
+    //  5) Declaration(AnnotationProperty(<http://ex.com/default#description>))
+    //  6) Declaration(AnnotationProperty(<http://ex.com/foo#ann>))
+    //  7) Declaration(AnnotationProperty(<http://ex.com/foo#hasName>))
+    //  8) Declaration(AnnotationProperty(<http://ex.com/default#comment>))
+    //  9) Declaration(Datatype(<http://ex.com/bar#dtype1>))
+    // 10) Declaration(Datatype(<http://ex.com/bar#dtype2>))
+    // 11) Declaration(Datatype(rdf:PlainLiteral))
+    // 12) Declaration(Datatype(rdfs:Literal))
+    // 13) Declaration(Datatype(xsd:int))
+    // 14) Declaration(Datatype(xsd:integer))
+    // 15) Declaration(Datatype(xsd:string))
+    // 16) Declaration(ObjectProperty(<http://ex.com/bar#Prop2>))
+    // 17) Declaration(ObjectProperty(<http://ex.com/bar#asymmObjProp>))
+    // 18) Declaration(ObjectProperty(<http://ex.com/bar#invObjProp1>))
+    // 19) Declaration(ObjectProperty(<http://ex.com/bar#objProp1>))
+    // 20) Declaration(ObjectProperty(<http://ex.com/bar#objProp2>))
+    // 21) Declaration(ObjectProperty(<http://ex.com/bar#sameAsObjProp1>))
+    // 22) Declaration(ObjectProperty(<http://ex.com/bar#subObjProp1>))
+    // 23) Declaration(DataProperty(<http://ex.com/bar#dataProp1>))
+    // 24) Declaration(DataProperty(<http://ex.com/bar#dataProp2>))
+    // 25) Declaration(DataProperty(<http://ex.com/bar#sameAsDataProp1>))
+    // 26) Declaration(DataProperty(<http://ex.com/bar#subDataProp1>))
+    // 27) Declaration(Class(<http://ex.com/bar#AllIndividualsCls>))
+    // 28) Declaration(Class(<http://ex.com/bar#AllProp1Cls1>))
+    // 29) Declaration(Class(<http://ex.com/bar#Cl1OrNegate>))
+    // 30) Declaration(Class(<http://ex.com/bar#Cls1>))
+    // 31) Declaration(Class(<http://ex.com/bar#Cls2>))
+    // 32) Declaration(Class(<http://ex.com/bar#ComplementCls>))
+    // 33) Declaration(Class(<http://ex.com/bar#ComplementCls1>))
+    // 34) Declaration(Class(<http://ex.com/bar#DataAllIntGT10>))
+    // 35) Declaration(Class(<http://ex.com/bar#DataExact5Prop1>))
+    // 36) Declaration(Class(<http://ex.com/bar#DataHasVal5>))
+    // 37) Declaration(Class(<http://ex.com/bar#DataMax2Prop1>))
+    // 38) Declaration(Class(<http://ex.com/bar#DataMin3Prop1>))
+    // 39) Declaration(Class(<http://ex.com/bar#DataSomeIntLT20>))
+    // 40) Declaration(Class(<http://ex.com/bar#Exact5Prop1Cls1>))
+    // 41) Declaration(Class(<http://ex.com/bar#HasSelfProp1>))
+    // 42) Declaration(Class(<http://ex.com/bar#HasValProp1IndivB>))
+    // 43) Declaration(Class(<http://ex.com/bar#IntersectionCls>))
+    // 44) Declaration(Class(<http://ex.com/bar#Max3Prop1Cls1>))
+    // 45) Declaration(Class(<http://ex.com/bar#Min2Prop1Cls1>))
+    // 46) Declaration(Class(<http://ex.com/bar#SomeProp1Cls1>))
+    // 47) Declaration(Class(<http://ex.com/bar#UnionCls>))
+    // 48) Declaration(NamedIndividual(<http://ex.com/foo#indivA>))
+    // 49) Declaration(NamedIndividual(<http://ex.com/foo#indivB>))
+    // 50) Declaration(NamedIndividual(<http://ex.com/foo#sameAsIndivA>))
+    val expectedNumberOfAxioms = 50
     val filteredDataset = dataset.filter(axiom => axiom.isInstanceOf[OWLDeclarationAxiom])
 
     assert(filteredDataset.count() == expectedNumberOfAxioms)
