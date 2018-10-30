@@ -1,6 +1,7 @@
 # SANSA OWL
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/net.sansa-stack/sansa-owl-parent_2.11/badge.svg)](https://maven-badges.herokuapp.com/maven-central/net.sansa-stack/sansa-owl-parent_2.11)
 [![Build Status](https://ci.aksw.org/jenkins/job/SANSA%20OWL%20Layer/job/develop/badge/icon)](https://ci.aksw.org/jenkins/job/SANSA%20OWL%20Layer/job/develop/)
+[![Coverage Status](https://coveralls.io/repos/github/SANSA-Stack/SANSA-OWL/badge.svg?branch=develop)](https://coveralls.io/github/SANSA-Stack/SANSA-OWL?branch=develop)
 [![Twitter](https://img.shields.io/twitter/follow/SANSA_Stack.svg?style=social)](https://twitter.com/SANSA_Stack)
 
 ## Description
