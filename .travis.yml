@@ -1,5 +1,17 @@
-language: java
+env:
+  global:
+   - secure: "MJ+esMRziEdrjLrXWDPmAR/iGLrmqhdzUPHjH+pf/5SZKJd/45zlP4UCJz3JIknAoHBvS7ooupHRCl79S2uBDyOLFXzqcqI+X+Ci1XjBTnBz9e/MLfBR7HPnta/XzsZAKqhWw+np9JPFZbC/tM1F54PPJ5+GfT0XDk7XKaOz0qxZnsMhSXmtZqjfqy/cp7t5QQtCMkEbLNwNBdEpJMoiV46hnxfXx+lIqpGVqx/aIMBoSPSD8eYCQdI7aXwteLPURn1toAEGASO5VqXHeKOBWv+2C1VN+eGeh1S4F13tJiiOTqYyIT+kPkM3L56YTLu5CmsgIMBa752UF7j9dRqw2llRVKI9NGrs8d+yGGkGVwNTE6EM7etDm2bpQWL1W7/3u0L6k6CtItj3OXfBSYONCYIJhroRHcTuU2SqUHA3ycoy83lB2R1c+uFsUpBagsTGHSEDP4hqejSQRqaJvPf+3jU0AYfN+/dcSK0OAVuGOuLVZ1uwBILqNLuh0fNpzf6LN4YO0VaINpfy0re/c/nzFYsCVzSL1vrqGN8GbZlxEyWU5pmoJsmgRvbKjTufdzRXXC1GcshooroKkUeIA+VYfeRMhUYeqeiGYk+JR+kBb0Bs+eEsafCEDkV6LzoiGZmIP23RZq0Ls9DAZ5VSuH/SJPKMekjxfX5UPSr+lSZCJdQ="
+language: scala
 sudo: false
 cache:
   directories:
   - $HOME/.m2
+scala:
+  - 2.11.11
+jdk:
+  - oraclejdk8
+script:
+  - mvn scalastyle:check
+  - mvn test 
+after_success:
+  - mvn clean test jacoco:report coveralls:report
