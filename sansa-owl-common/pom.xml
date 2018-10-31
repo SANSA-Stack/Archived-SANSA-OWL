@@ -9,9 +9,7 @@
         <artifactId>sansa-owl-parent_2.11</artifactId>
         <version>0.4.1-SNAPSHOT</version>
     </parent>
-
     <artifactId>sansa-owl-common_2.11</artifactId>
-    <version>0.4.1-SNAPSHOT</version>
 
     <dependencies>
         <!-- Scala dependencies -->
