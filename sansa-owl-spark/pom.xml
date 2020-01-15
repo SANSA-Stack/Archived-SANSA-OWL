@@ -6,13 +6,16 @@
     <parent>
         <groupId>net.sansa-stack</groupId>
         <artifactId>sansa-owl-parent_2.11</artifactId>
-        <version>0.6.0</version>
+        <version>0.7.1</version>
     </parent>
 
     <artifactId>sansa-owl-spark_2.11</artifactId>
 
     <name>SANSA OWL layer - SPARK</name>
     <description>A library to read OWL files into Spark.</description>
+
+    <properties>
+    </properties>
 
     <dependencies>
         <dependency>
@@ -21,10 +24,34 @@
             <version>${project.version}</version>
         </dependency>
 
+        <!-- Apache JENA 3.x-->
+        <dependency>
+            <groupId>org.apache.jena</groupId>
+            <artifactId>jena-core</artifactId>
+            <version>${jena.version}</version>
+        </dependency>
+
         <!-- Scala dependencies -->
         <dependency>
             <groupId>org.scala-lang</groupId>
             <artifactId>scala-library</artifactId>
+        </dependency>
+
+        <!-- Scala java8 -->
+        <dependency>
+            <groupId>org.scala-lang.modules</groupId>
+            <artifactId>scala-java8-compat_${scala.binary.version}</artifactId>
+        </dependency>
+
+        <!-- Jackson FasterXML -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.module</groupId>
+            <artifactId>jackson-module-scala_2.11</artifactId>
         </dependency>
 
         <!-- Spark dependencies -->
@@ -46,9 +73,22 @@
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-mapreduce-client-core</artifactId>
         </dependency>
+
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-common</artifactId>
+            <version>${hadoop.common.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-streaming</artifactId>
+            <version>${hadoop.version}</version>
+        </dependency>
+
+        <!-- Logging -->
+        <dependency>
+            <groupId>com.typesafe.scala-logging</groupId>
+            <artifactId>scala-logging_${scala.binary.version}</artifactId>
         </dependency>
 
         <!-- OWL API dependencies -->

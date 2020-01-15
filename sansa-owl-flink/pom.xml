@@ -7,7 +7,7 @@
     <parent>
         <artifactId>sansa-owl-parent_2.11</artifactId>
         <groupId>net.sansa-stack</groupId>
-        <version>0.6.0</version>
+        <version>0.7.1</version>
     </parent>
 
     <artifactId>sansa-owl-flink_2.11</artifactId>
@@ -26,6 +26,12 @@
         <dependency>
             <groupId>org.scala-lang</groupId>
             <artifactId>scala-library</artifactId>
+        </dependency>
+
+        <!-- Logging dependencies -->
+        <dependency>
+            <groupId>com.typesafe.scala-logging</groupId>
+            <artifactId>scala-logging_2.11</artifactId>
         </dependency>
 
         <!-- Apache Flink dependencies -->
